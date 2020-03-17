@@ -32,7 +32,10 @@ class RTBase:
 
         self.widget.insert(INSERT, 'XML path: ' + self.xml_path + '\n')
 
-        copyfile(self.xml_path, self.temp_path + self.checked_fname)
+        try:
+            copyfile(self.xml_path, self.temp_path + self.checked_fname)
+        except FileNotFoundError:
+            return ('XNF')
 
         zf = zipfile.ZipFile(self.zip_path, mode='w')
         zf.write(self.temp_path + self.checked_fname, compress_type=compression)
@@ -108,6 +111,9 @@ class WorkWindow:
             if CheckBase(Node):
                 self.UTRTButton.configure(state='active')
                 self.RTUTButton.configure(state='active')
+                self.InfoArea.delete(1.0, END)
+                Text = Node + ' is OK.'
+                self.InfoArea.insert(INSERT, Text)
             else:
                 messagebox.showinfo('ERROR ALERT',
                                     message='Node name must be 3 capital letters without digits and special chars!')
@@ -124,8 +130,15 @@ class WorkWindow:
 
             if CheckBase(self.BaseEntry.get()):
                 self.BaseEntry.configure(state='disabled')
-                RB = RTBase(self.BaseEntry.get(), self.InfoArea)
-                getattr(RB, method)()
+                RB = RTBase(self.BaseEntry.get(), self.InfoArea, self.MainWin)
+                ExchangeError = getattr(RB, method)()
+                if ExchangeError == 'XNF':
+                    messagebox.showinfo('ERROR ALERT',
+                        message='XML file not found in XML path! Run sync in 1C for fix it.')
+                    self.RTUTButton.configure(state='disabled')
+                    self.UTRTButton.configure(state='disabled')
+                    self.InfoArea.insert(INSERT, 'XML file not found!')
+                    self.BaseEntry.configure(state='normal')
                 self.BaseEntry.configure(state='normal')
             else:
                 messagebox.showinfo('ERROR ALERT',
