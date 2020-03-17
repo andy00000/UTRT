@@ -4,6 +4,7 @@ from tkinter import *
 from tkinter import scrolledtext
 from tkinter import messagebox
 from ftplib import FTP
+import tkinter as tk
 import os
 import zipfile
 from shutil import copyfile
@@ -130,7 +131,7 @@ class WorkWindow:
 
             if CheckBase(self.BaseEntry.get()):
                 self.BaseEntry.configure(state='disabled')
-                RB = RTBase(self.BaseEntry.get(), self.InfoArea, self.MainWin)
+                RB = RTBase(self.BaseEntry.get(), self.InfoArea)
                 ExchangeError = getattr(RB, method)()
                 if ExchangeError == 'XNF':
                     messagebox.showinfo('ERROR ALERT',
@@ -150,6 +151,7 @@ class WorkWindow:
         self.MainWin = Tk()
 
         self.MainWin.title('UT - RT exchange utility. V2.1.20')
+        self.MainWin.iconphoto(False, tk.PhotoImage(file='D:\\Upload\\RT_UPDOWN\\br.ico'))
 
         self.NodeLabel = Label(self.MainWin, text='NODE: ')
         self.NodeLabel.grid(column=0, row=1, padx=3, pady=3)
