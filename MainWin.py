@@ -76,7 +76,10 @@ class RTBase:
         self.widget.insert(INSERT, FTPOUT)
 
         with open(self.zip_path, 'wb') as f:
-            FTPOUT = ftp.retrbinary('RETR ' + os.path.basename(self.zip_path), f.write)
+            try:
+                FTPOUT = ftp.retrbinary('RETR ' + os.path.basename(self.zip_path), f.write)
+            except:
+                return ('FFN')
             FTPOUT += '\n'
             self.widget.insert(INSERT, FTPOUT)
 
@@ -133,6 +136,9 @@ class WorkWindow:
                 self.BaseEntry.configure(state='disabled')
                 RB = RTBase(self.BaseEntry.get(), self.InfoArea)
                 ExchangeError = getattr(RB, method)()
+
+                # Блок обработки ошибок, связанных с отсутствием файлов
+
                 if ExchangeError == 'XNF':
                     messagebox.showinfo('ERROR ALERT',
                         message='XML file not found in XML path! Run sync in 1C for fix it.')
@@ -140,6 +146,16 @@ class WorkWindow:
                     self.UTRTButton.configure(state='disabled')
                     self.InfoArea.insert(INSERT, 'XML file not found!')
                     self.BaseEntry.configure(state='normal')
+                elif ExchangeError == 'FFN':
+                    messagebox.showinfo('ERROR ALERT',
+                                        message='ZIP file not found in FTP! Run sync in RT first for fix it.')
+                    self.RTUTButton.configure(state='disabled')
+                    self.UTRTButton.configure(state='disabled')
+                    self.InfoArea.insert(INSERT, 'ZIP file not found!')
+                    self.BaseEntry.configure(state='normal')
+
+                # Конец блока обработки файловых ошибок
+
                 self.BaseEntry.configure(state='normal')
             else:
                 messagebox.showinfo('ERROR ALERT',
